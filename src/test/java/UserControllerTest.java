@@ -1,9 +1,9 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserControllerTest {
 
-    private UserController userController;
+    private InMemoryUserStorage inMemoryUserStorage;
 
     @BeforeEach
     void setUp() {
-        userController = new UserController();
+        inMemoryUserStorage = new InMemoryUserStorage();
     }
 
     @Test
@@ -27,11 +27,11 @@ class UserControllerTest {
                 .birthday(LocalDate.of(2000, 1, 1))
                 .build();
 
-        User added = userController.addUser(user);
+        User added = inMemoryUserStorage.addUser(user);
 
         assertNotNull(added.getId());
         assertEquals("test@mail.com", added.getEmail());
-        assertEquals(1, userController.getAllUsers().size());
+        assertEquals(1, inMemoryUserStorage.getAllUsers().size());
     }
 
     @Test
@@ -43,7 +43,7 @@ class UserControllerTest {
                 .birthday(LocalDate.of(2000, 1, 1))
                 .build();
 
-        assertThrows(ConditionsNotMetException.class, () -> userController.addUser(user));
+        assertThrows(ConditionsNotMetException.class, () -> inMemoryUserStorage.addUser(user));
     }
 
     @Test
@@ -55,7 +55,7 @@ class UserControllerTest {
                 .birthday(LocalDate.of(2000, 1, 1))
                 .build();
 
-        assertThrows(ConditionsNotMetException.class, () -> userController.addUser(user));
+        assertThrows(ConditionsNotMetException.class, () -> inMemoryUserStorage.addUser(user));
     }
 
     @Test
@@ -67,7 +67,7 @@ class UserControllerTest {
                 .birthday(LocalDate.of(2000, 1, 1))
                 .build();
 
-        assertThrows(ConditionsNotMetException.class, () -> userController.addUser(user));
+        assertThrows(ConditionsNotMetException.class, () -> inMemoryUserStorage.addUser(user));
     }
 
     @Test
@@ -79,7 +79,7 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1995, 5, 5))
                 .build();
 
-        User added = userController.addUser(user);
+        User added = inMemoryUserStorage.addUser(user);
 
         User update = User.builder()
                 .id(added.getId())
@@ -89,7 +89,7 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1995, 5, 5))
                 .build();
 
-        User updated = userController.updateUser(update);
+        User updated = inMemoryUserStorage.updateUser(update);
 
         assertEquals("new@mail.com", updated.getEmail());
         assertEquals("User Updated", updated.getName());
@@ -105,7 +105,7 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1995, 5, 5))
                 .build();
 
-        assertThrows(NotFoundException.class, () -> userController.updateUser(update));
+        assertThrows(NotFoundException.class, () -> inMemoryUserStorage.updateUser(update));
     }
 
     @Test
@@ -117,7 +117,7 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1995, 5, 5))
                 .build();
 
-        User added = userController.addUser(user);
+        User added = inMemoryUserStorage.addUser(user);
 
         User update = User.builder()
                 .id(added.getId())
@@ -127,7 +127,7 @@ class UserControllerTest {
                 .birthday(LocalDate.of(2030, 5, 5))
                 .build();
 
-        assertThrows(ConditionsNotMetException.class, () -> userController.updateUser(update));
+        assertThrows(ConditionsNotMetException.class, () -> inMemoryUserStorage.updateUser(update));
     }
 
     @Test
@@ -139,7 +139,7 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1995, 5, 5))
                 .build();
 
-        userController.addUser(user1);
+        inMemoryUserStorage.addUser(user1);
 
         User user2 = User.builder()
                 .email("user2@mail.com")
@@ -148,7 +148,7 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1995, 5, 5))
                 .build();
 
-        assertThrows(ConditionsNotMetException.class, () -> userController.addUser(user2));
+        assertThrows(ConditionsNotMetException.class, () -> inMemoryUserStorage.addUser(user2));
     }
 
     @Test
@@ -160,7 +160,7 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1995, 5, 5))
                 .build();
 
-        userController.addUser(user1);
+        inMemoryUserStorage.addUser(user1);
 
         User user2 = User.builder()
                 .email("user2@mail.com")
@@ -169,7 +169,7 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1995, 5, 5))
                 .build();
 
-        assertThrows(ConditionsNotMetException.class, () -> userController.addUser(user2));
+        assertThrows(ConditionsNotMetException.class, () -> inMemoryUserStorage.addUser(user2));
     }
 
     @Test
@@ -181,7 +181,7 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1995, 5, 5))
                 .build();
 
-        userController.addUser(user1);
+        inMemoryUserStorage.addUser(user1);
 
         User user2 = User.builder()
                 .email("duplicate@mail.com")
@@ -190,6 +190,6 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1995, 5, 5))
                 .build();
 
-        assertThrows(ConditionsNotMetException.class, () -> userController.addUser(user2));
+        assertThrows(ConditionsNotMetException.class, () -> inMemoryUserStorage.addUser(user2));
     }
 }

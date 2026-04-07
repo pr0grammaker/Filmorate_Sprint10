@@ -1,9 +1,9 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -12,11 +12,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FilmControllerTest {
 
-    private FilmController filmController;
+    private InMemoryFilmStorage inMemoryFilmStorage;
 
     @BeforeEach
     void setUp() {
-        filmController = new FilmController();
+        inMemoryFilmStorage = new InMemoryFilmStorage();
     }
 
     @Test
@@ -28,11 +28,11 @@ class FilmControllerTest {
                 .duration(Duration.ofMinutes(120))
                 .build();
 
-        Film added = filmController.addMovie(film);
+        Film added = inMemoryFilmStorage.addFilm(film);
 
         assertNotNull(added.getId());
         assertEquals("Test Movie", added.getName());
-        assertEquals(1, filmController.getAllFilms().size());
+        assertEquals(1, inMemoryFilmStorage.getAllFilms().size());
     }
 
     @Test
@@ -44,7 +44,7 @@ class FilmControllerTest {
                 .duration(Duration.ofMinutes(120))
                 .build();
 
-        filmController.addMovie(film1);
+        inMemoryFilmStorage.addFilm(film1);
 
         Film film2 = Film.builder()
                 .name("Test Movie")
@@ -53,7 +53,7 @@ class FilmControllerTest {
                 .duration(Duration.ofMinutes(120))
                 .build();
 
-        assertThrows(ConditionsNotMetException.class, () -> filmController.addMovie(film2));
+        assertThrows(ConditionsNotMetException.class, () -> inMemoryFilmStorage.addFilm(film2));
     }
 
     @Test
@@ -65,7 +65,7 @@ class FilmControllerTest {
                 .duration(Duration.ofMinutes(120))
                 .build();
 
-        assertThrows(ConditionsNotMetException.class, () -> filmController.addMovie(film));
+        assertThrows(ConditionsNotMetException.class, () -> inMemoryFilmStorage.addFilm(film));
     }
 
     @Test
@@ -77,7 +77,7 @@ class FilmControllerTest {
                 .duration(Duration.ofMinutes(120))
                 .build();
 
-        assertThrows(ConditionsNotMetException.class, () -> filmController.addMovie(film));
+        assertThrows(ConditionsNotMetException.class, () -> inMemoryFilmStorage.addFilm(film));
     }
 
     @Test
@@ -94,7 +94,7 @@ class FilmControllerTest {
                 .duration(Duration.ofMinutes(120))
                 .build();
 
-        assertThrows(ConditionsNotMetException.class, () -> filmController.addMovie(film));
+        assertThrows(ConditionsNotMetException.class, () -> inMemoryFilmStorage.addFilm(film));
     }
 
     @Test
@@ -106,7 +106,7 @@ class FilmControllerTest {
                 .duration(Duration.ofMinutes(100))
                 .build();
 
-        Film added = filmController.addMovie(film);
+        Film added = inMemoryFilmStorage.addFilm(film);
 
         Film update = Film.builder()
                 .id(added.getId())
@@ -116,7 +116,7 @@ class FilmControllerTest {
                 .duration(Duration.ofMinutes(110))
                 .build();
 
-        Film updated = filmController.updateMovie(update);
+        Film updated = inMemoryFilmStorage.updateFilm(update);
 
         assertEquals("Updated Movie", updated.getName());
         assertEquals(110, updated.getDuration().toMinutes());
@@ -132,7 +132,7 @@ class FilmControllerTest {
                 .duration(Duration.ofMinutes(110))
                 .build();
 
-        assertThrows(NotFoundException.class, () -> filmController.updateMovie(update));
+        assertThrows(NotFoundException.class, () -> inMemoryFilmStorage.updateFilm(update));
     }
 
     @Test
@@ -144,6 +144,6 @@ class FilmControllerTest {
                 .duration(Duration.ofMinutes(120))
                 .build();
 
-        assertThrows(ConditionsNotMetException.class, () -> filmController.addMovie(film1));
+        assertThrows(ConditionsNotMetException.class, () -> inMemoryFilmStorage.addFilm(film1));
     }
 }
