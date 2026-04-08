@@ -15,7 +15,7 @@ public class DurationMinutesSerializer extends StdSerializer<Duration> {
 
     @Override
     public void serialize(Duration value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-        // Сериализуем в секунды иначе 7 тест не проходит в Film udpate в Postman
+        // Сериализуем в секунды иначе 7 тест не проходит в Film update в Postman
         long minutes = value.getSeconds();
         gen.writeNumber(minutes);
     }

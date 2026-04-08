@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -52,8 +53,7 @@ public class UserService {
 
         if (!user.getFriends().contains(friendId)) {
             log.warn("Пользователь с id={} не содержит в друзьях id={}", user.getId(), friendId);
-//            throw new NotFoundException("Данный пользователь уже отсутсвует у Вас в друзьях");
-        } // убрал исключение т.к. без этого не проходит 1 тест в postman -> "Not friend remove"
+        }
         user.getFriends().remove(friendId);
         friend.getFriends().remove(userId);
 
@@ -118,4 +118,53 @@ public class UserService {
         return commonFriends;
     }
 
+    public Collection<User> getAllUsers() {
+        return inMemoryUserStorage.getAllUsers();
+    }
+
+    public User addUser(User user) {
+        checkUser(user);
+        return inMemoryUserStorage.addUser(user);
+    }
+
+    public User updateUser(User newUser) {
+        checkUser(newUser);
+        return inMemoryUserStorage.updateUser(newUser);
+    }
+
+    private void checkUser(User user) {
+        if (user.getEmail() == null || user.getEmail().isBlank() ||
+                !user.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.(ru|com)$")) {
+            log.warn("Ошибка проверки пользователя: некорректный email");
+            throw new ConditionsNotMetException("Имейл должен быть указан и соответствовать формату - example@mail.ru/com");
+        }
+
+        if (user.getLogin() == null || user.getLogin().isBlank()) {
+            log.warn("Ошибка проверки пользователя: логин пустой");
+            throw new ConditionsNotMetException("Логин не может быть пустым");
+        }
+
+        if (user.getName() == null || user.getName().isBlank()) {
+            log.info("Имя пользователя не указано, присваиваем email как имя: {}", user.getEmail());
+            user.setName(user.getEmail());
+        }
+
+        if (userExist(user)) {
+            log.warn("Ошибка проверки пользователя: пользователь с таким именем или логином уже существует");
+            throw new ConditionsNotMetException("Пользователь с таким именем, логинином или email уже существует");
+        }
+
+        if (user.getBirthday().isAfter(LocalDate.now())) {
+            log.warn("Ошибка проверки пользователя: дата рождения в будущем");
+            throw new ConditionsNotMetException("Дата рождения не может быть в будущем");
+        }
+    }
+
+    private boolean userExist(User user) {
+        return inMemoryUserStorage.getAllUsers().stream()
+                .anyMatch(u -> !u.getId().equals(user.getId()) &&
+                        u.getName().equals(user.getName()) ||
+                        u.getLogin().equals(user.getLogin()) ||
+                        u.getEmail().equals(user.getEmail()));
+    }
 }

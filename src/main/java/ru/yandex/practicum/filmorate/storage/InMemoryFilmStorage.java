@@ -24,13 +24,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film addFilm(Film film) {
         log.info("Попытка добавить новый фильм: {}", film);
 
-        try {
-            checkMovie(film);
-        } catch (ConditionsNotMetException e) {
-            log.warn("Ошибка проверки фильма перед добавлением: {}", e.getMessage());
-            throw e;
-        }
-
         Long id = getNextID();
         film = film.toBuilder()
                 .id(id)
@@ -57,13 +50,6 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new NotFoundException("Фильм с id = " + newFilm.getId() + " не найден");
         }
 
-        try {
-            checkMovie(newFilm);
-        } catch (ConditionsNotMetException e) {
-            log.warn("Ошибка проверки фильма перед обновлением: {}", e.getMessage());
-            throw e;
-        }
-
         Film updatedFilm = films.get(newFilm.getId())
                 .toBuilder()
                 .name(newFilm.getName())
@@ -80,41 +66,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         log.info("Фильм успешно обновлен: {}", updatedFilm);
 
         return updatedFilm;
-    }
-
-
-    private void checkMovie(Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
-            log.warn("Проверка фильма провалена: название пустое");
-            throw new ConditionsNotMetException("Название не может быть пустым");
-        }
-
-        if (nameExist(film)) {
-            log.warn("Проверка фильма провалена: фильм с таким названием уже существует");
-            throw new ConditionsNotMetException("Фильм с таким названием уже существует");
-        }
-
-        if (film.getDescription() == null || film.getDescription().isBlank() || film.getDescription().length() > 200) {
-            log.warn("Проверка фильма провалена: описание слишком длинное или пустое");
-            throw new ConditionsNotMetException("Описание слишком длинное или пустое");
-        }
-
-        if (film.getReleaseDate() == null ||
-                film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.warn("Проверка фильма провалена: дата релиза раньше 28.12.1895");
-            throw new ConditionsNotMetException("Дата релиза не может быть раньше 28.12.1895");
-        }
-
-        if (film.getDuration() == null || film.getDuration().toMinutes() <= 0) {
-            log.warn("Проверка фильма провалена: длительность не положительная либо пустая");
-            throw new ConditionsNotMetException("Длительность должна быть положительной и не пустой");
-        }
-    }
-
-    private boolean nameExist(Film newFilm) {
-        return films.values().stream()
-                .anyMatch(film -> !film.getId().equals(newFilm.getId()) &&
-                        film.getName().equals(newFilm.getName()));
     }
 
     private Long getNextID() {

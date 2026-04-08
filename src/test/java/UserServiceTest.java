@@ -25,14 +25,14 @@ public class UserServiceTest {
 
     @Test
     void addFriend_shouldAddFriendSuccessfully() {
-        User user1 = inMemoryUserStorage.addUser(User.builder()
+        User user1 = userService.addUser(User.builder()
                 .email("user1@mail.com")
                 .login("user1")
                 .name("User One")
                 .birthday(LocalDate.of(1990, 1, 1))
                 .build());
 
-        User user2 = inMemoryUserStorage.addUser(User.builder()
+        User user2 = userService.addUser(User.builder()
                 .email("user2@mail.com")
                 .login("user2")
                 .name("User Two")
@@ -46,7 +46,7 @@ public class UserServiceTest {
 
     @Test
     void addFriend_shouldThrow_whenAddSelf() {
-        User user = inMemoryUserStorage.addUser(User.builder()
+        User user = userService.addUser(User.builder()
                 .email("user@mail.com")
                 .login("user")
                 .name("User")
@@ -59,14 +59,14 @@ public class UserServiceTest {
 
     @Test
     void addFriend_shouldThrow_whenAlreadyFriend() {
-        User user1 = inMemoryUserStorage.addUser(User.builder()
+        User user1 = userService.addUser(User.builder()
                 .email("user1@mail.com")
                 .login("user1")
                 .name("User One")
                 .birthday(LocalDate.of(1990, 1, 1))
                 .build());
 
-        User user2 = inMemoryUserStorage.addUser(User.builder()
+        User user2 = userService.addUser(User.builder()
                 .email("user2@mail.com")
                 .login("user2")
                 .name("User Two")
@@ -81,14 +81,14 @@ public class UserServiceTest {
 
     @Test
     void deleteFriend_shouldRemoveFriendSuccessfully() {
-        User user1 = inMemoryUserStorage.addUser(User.builder()
+        User user1 = userService.addUser(User.builder()
                 .email("user1@mail.com")
                 .login("user1")
                 .name("User One")
                 .birthday(LocalDate.of(1990, 1, 1))
                 .build());
 
-        User user2 = inMemoryUserStorage.addUser(User.builder()
+        User user2 = userService.addUser(User.builder()
                 .email("user2@mail.com")
                 .login("user2")
                 .name("User Two")
@@ -102,28 +102,8 @@ public class UserServiceTest {
     }
 
     @Test
-    void deleteFriend_shouldThrow_whenFriendNotExists() {
-        User user1 = inMemoryUserStorage.addUser(User.builder()
-                .email("user1@mail.com")
-                .login("user1")
-                .name("User One")
-                .birthday(LocalDate.of(1990, 1, 1))
-                .build());
-
-        User user2 = inMemoryUserStorage.addUser(User.builder()
-                .email("user2@mail.com")
-                .login("user2")
-                .name("User Two")
-                .birthday(LocalDate.of(1992, 2, 2))
-                .build());
-
-        assertThrows(NotFoundException.class,
-                () -> userService.deleteFriend(user1.getId(), user2.getId()));
-    }
-
-    @Test
     void deleteFriend_shouldThrow_whenFriendIdIsNull() {
-        User user = inMemoryUserStorage.addUser(User.builder()
+        User user = userService.addUser(User.builder()
                 .email("user@mail.com")
                 .login("user")
                 .name("User")
@@ -136,14 +116,14 @@ public class UserServiceTest {
 
     @Test
     void getFriends_shouldReturnFriendsList() {
-        User user1 = inMemoryUserStorage.addUser(User.builder()
+        User user1 = userService.addUser(User.builder()
                 .email("user1@mail.com")
                 .login("user1")
                 .name("User One")
                 .birthday(LocalDate.of(1990, 1, 1))
                 .build());
 
-        User user2 = inMemoryUserStorage.addUser(User.builder()
+        User user2 = userService.addUser(User.builder()
                 .email("user2@mail.com")
                 .login("user2")
                 .name("User Two")
@@ -160,21 +140,21 @@ public class UserServiceTest {
 
     @Test
     void getCommonFriends_shouldReturnIntersection() {
-        User user1 = inMemoryUserStorage.addUser(User.builder()
+        User user1 = userService.addUser(User.builder()
                 .email("user1@mail.com")
                 .login("user1")
                 .name("User One")
                 .birthday(LocalDate.of(1990, 1, 1))
                 .build());
 
-        User user2 = inMemoryUserStorage.addUser(User.builder()
+        User user2 = userService.addUser(User.builder()
                 .email("user2@mail.com")
                 .login("user2")
                 .name("User Two")
                 .birthday(LocalDate.of(1992, 2, 2))
                 .build());
 
-        User user3 = inMemoryUserStorage.addUser(User.builder()
+        User user3 = userService.addUser(User.builder()
                 .email("user3@mail.com")
                 .login("user3")
                 .name("User Three")
@@ -199,7 +179,7 @@ public class UserServiceTest {
 
     @Test
     void getCommonFriends_shouldThrow_whenUserNotFound() {
-        User user = inMemoryUserStorage.addUser(User.builder()
+        User user = userService.addUser(User.builder()
                 .email("user@mail.com")
                 .login("user")
                 .name("User")
