@@ -8,4 +8,6 @@ public interface FilmStorage {
     Film addFilm(Film film);
     Film updateFilm(Film film);
     Collection<Film> getAllFilms();
+    Film getFilmById(Long id);
+    Collection<Film> getTopFilmOnLikes(Integer count);
 }

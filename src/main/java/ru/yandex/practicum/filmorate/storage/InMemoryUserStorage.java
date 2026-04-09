@@ -76,6 +76,7 @@ public class InMemoryUserStorage implements UserStorage {
         return ++currentMaxID;
     }
 
+    @Override
     public User getUserById(Long id) {
         if (id == null) {
             throw new ConditionsNotMetException("Id должен быть указан");

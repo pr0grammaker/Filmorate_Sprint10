@@ -60,24 +60,12 @@ public class FilmService {
     }
 
     public Film addFilm(Film film) {
-        try {
-            checkMovie(film);
-        } catch (ConditionsNotMetException e) {
-            log.warn("Ошибка проверки фильма перед добавлением: {}", e.getMessage());
-            throw e;
-        }
-
+        checkMovie(film);
         return inMemoryFilmStorage.addFilm(film);
     }
 
     public Film updateFilm(Film film) {
-        try {
-            checkMovie(film);
-        } catch (ConditionsNotMetException e) {
-            log.warn("Ошибка проверки фильма перед обновлением: {}", e.getMessage());
-            throw e;
-        }
-
+        checkMovie(film);
         return inMemoryFilmStorage.updateFilm(film);
     }
 
