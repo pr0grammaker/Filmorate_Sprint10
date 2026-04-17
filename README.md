@@ -74,3 +74,6 @@ Filmorate/
 
 ### 🖼️ Screenshot 5
 ![Screenshot 5](https://github.com/user-attachments/assets/e0b65833-f8fc-42aa-8fbc-0a8188a15fed)
+
+<img width="819" height="689" alt="Filmorate_Shema_ERD" src="https://github.com/user-attachments/assets/51722763-e1b0-4ff7-bf5d-87fb4cf4997b" />
+
