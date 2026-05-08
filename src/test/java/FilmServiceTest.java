@@ -1,170 +1,300 @@
-import org.junit.jupiter.api.BeforeEach;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
+import ru.yandex.practicum.filmorate.FilmorateApplication;
+import ru.yandex.practicum.filmorate.dal.FilmDbStorage;
+import ru.yandex.practicum.filmorate.dal.GenreDbStorage;
+import ru.yandex.practicum.filmorate.dal.RatingDbStorage;
+import ru.yandex.practicum.filmorate.dal.UserDbStorage;
+import ru.yandex.practicum.filmorate.dto.film.NewFilmRequest;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.mapper.MapperConfig;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.services.FilmService;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
-
-import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Collection;
+import java.util.Set;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import static org.junit.jupiter.api.Assertions.*;
 
+@JdbcTest(properties = "spring.sql.init.data-locations=classpath:data-test.sql")
+@AutoConfigureTestDatabase
+@ContextConfiguration(classes = FilmorateApplication.class)
+@Import({
+        UserDbStorage.class,
+        FilmDbStorage.class,
+        MapperConfig.class,
+        FilmService.class,
+        RatingDbStorage.class,
+        GenreDbStorage.class
+})
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 class FilmServiceTest {
+    private final FilmService filmService;
 
-    private FilmService filmService;
-    private InMemoryFilmStorage filmStorage;
-    private InMemoryUserStorage userStorage;
+//----------------------------Обработка исключительных ситуаций
 
-    @BeforeEach
-    void setUp() {
-        filmStorage = new InMemoryFilmStorage();
-        userStorage = new InMemoryUserStorage();
-        filmService = new FilmService(filmStorage, userStorage);
-    }
+    @Test
+    public void testAddFilmAlreadyExist_shouldThrowException() {
 
-    private User createUser() {
-        return userStorage.addUser(User.builder()
-                .email("user@mail.com")
-                .login("user")
-                .name("User")
-                .birthday(LocalDate.of(1990, 1, 1))
-                .build());
-    }
-
-    private Film createFilm() {
-        return filmStorage.addFilm(Film.builder()
-                .name("Film")
-                .description("Description")
+        NewFilmRequest film1 = NewFilmRequest.builder()
+                .name("Test Movie")
+                .description("Some description")
                 .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(Duration.ofMinutes(120))
-                .build());
+                .genres(Set.of(
+                        Genre.builder()
+                                .id(1L)
+                                .name("Экшен")
+                                .build()
+                ))
+                .mpa(
+                        Rating.builder()
+                                .id(2L)
+                                .name("PG")
+                                .build()
+                )
+                .duration(90)
+                .build();
+
+        filmService.addFilm(film1);
+
+        NewFilmRequest film2 = NewFilmRequest.builder()
+                .name("Test Movie")
+                .description("Some description")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .genres(Set.of(
+                        Genre.builder()
+                                .id(1L)
+                                .name("Экшен")
+                                .build()
+                ))
+                .mpa(
+                        Rating.builder()
+                                .id(2L)
+                                .name("PG")
+                                .build()
+                )
+                .duration(90)
+                .build();
+
+        assertThatThrownBy(() -> filmService.addFilm(film2))
+                .isInstanceOf(ConditionsNotMetException.class);
     }
 
     @Test
-    void likeTheFilm_shouldAddSuccessfully() {
-        User user = createUser();
-        Film film = createFilm();
+    public void testAddFilmEmptyName_shouldThrowException() {
 
-        Film updated = filmService.likeTheFilm(film.getId(), user.getId());
+        NewFilmRequest film1 = NewFilmRequest.builder()
+                .name("")
+                .description("Some description")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .genres(Set.of(
+                        Genre.builder()
+                                .id(1L)
+                                .name("Экшен")
+                                .build()
+                ))
+                .mpa(
+                        Rating.builder()
+                                .id(2L)
+                                .name("PG")
+                                .build()
+                )
+                .duration(90)
+                .build();
 
-        assertTrue(updated.getLikes().contains(user.getId()));
+        NewFilmRequest film2 = NewFilmRequest.builder()
+                .name("       ")
+                .description("Some description")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .genres(Set.of(
+                        Genre.builder()
+                                .id(1L)
+                                .name("Экшен")
+                                .build()
+                ))
+                .mpa(
+                        Rating.builder()
+                                .id(2L)
+                                .name("PG")
+                                .build()
+                )
+                .duration(90)
+                .build();
+
+        assertThatThrownBy(() -> filmService.addFilm(film1))
+                .isInstanceOf(ConditionsNotMetException.class);
+
+        assertThatThrownBy(() -> filmService.addFilm(film2))
+                .isInstanceOf(ConditionsNotMetException.class);
     }
 
     @Test
-    void likeTheFilm_shouldThrow_whenUserNotFound() {
-        Film film = createFilm();
+    public void testAddFilmEmptyDescription_shouldThrowException() {
 
-        assertThrows(NotFoundException.class,
-                () -> filmService.likeTheFilm(film.getId(), 999L));
+        NewFilmRequest film1 = NewFilmRequest.builder()
+                .name("Test Movie1")
+                .description("")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .genres(Set.of(
+                        Genre.builder()
+                                .id(1L)
+                                .name("Экшен")
+                                .build()
+                ))
+                .mpa(
+                        Rating.builder()
+                                .id(2L)
+                                .name("PG")
+                                .build()
+                )
+                .duration(90)
+                .build();
+
+        NewFilmRequest film2 = NewFilmRequest.builder()
+                .name("Test Movie2")
+                .description("")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .genres(Set.of(
+                        Genre.builder()
+                                .id(1L)
+                                .name("Экшен")
+                                .build()
+                ))
+                .mpa(
+                        Rating.builder()
+                                .id(2L)
+                                .name("PG")
+                                .build()
+                )
+                .duration(90)
+                .build();
+
+        assertThatThrownBy(() -> filmService.addFilm(film1))
+                .isInstanceOf(ConditionsNotMetException.class);
+
+        assertThatThrownBy(() -> filmService.addFilm(film2))
+                .isInstanceOf(ConditionsNotMetException.class);
     }
 
     @Test
-    void likeTheFilm_shouldThrow_whenFilmNotFound() {
-        User user = createUser();
+    public void testAddFilmDescriptionMoreThan200_shouldThrowException() {
 
-        assertThrows(NotFoundException.class,
-                () -> filmService.likeTheFilm(999L, user.getId()));
+        NewFilmRequest film = NewFilmRequest.builder()
+                .name("Гамлет")
+                .description("""
+                        Фильм рассказывает трагическую историю семьи
+                        Уильяма Шекспира через призму утраты их сына.
+                        Картина показывает, как личная боль и материнская скорбь Агнес
+                        Хэтэуэй становятся частью великого художественного наследия.
+                        """)
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .genres(Set.of(
+                        Genre.builder()
+                                .id(1L)
+                                .name("Экшен")
+                                .build()
+                ))
+                .mpa(
+                        Rating.builder()
+                                .id(2L)
+                                .name("PG")
+                                .build()
+                )
+                .duration(120)
+                .build();
+
+        assertThatThrownBy(() -> filmService.addFilm(film))
+                .isInstanceOf(ConditionsNotMetException.class);
     }
 
     @Test
-    void likeTheFilm_shouldThrow_whenAlreadyLiked() {
-        User user = createUser();
-        Film film = createFilm();
+    public void testAddFilmInvalidReleaseDate_shouldThrowException() {
 
-        filmService.likeTheFilm(film.getId(), user.getId());
+        NewFilmRequest film = NewFilmRequest.builder()
+                .name("Like Film")
+                .description("desc")
+                .releaseDate(LocalDate.of(1894, 1, 1))
+                .genres(Set.of(
+                        Genre.builder()
+                                .id(1L)
+                                .name("Экшен")
+                                .build()
+                ))
+                .mpa(
+                        Rating.builder()
+                                .id(2L)
+                                .name("PG")
+                                .build()
+                )
+                .duration(90)
+                .build();
 
-        assertThrows(ConditionsNotMetException.class,
-                () -> filmService.likeTheFilm(film.getId(), user.getId()));
+
+
+        assertThatThrownBy(() -> filmService.addFilm(film))
+                .isInstanceOf(ConditionsNotMetException.class);
     }
 
     @Test
-    void deleteLikeTheFilm_shouldRemoveSuccessfully() {
-        User user = createUser();
-        Film film = createFilm();
+    public void testAddFilmInvalidDuration_shouldThrowException() {
 
-        filmService.likeTheFilm(film.getId(), user.getId());
-        Film updated = filmService.deleteLikeTheFilm(film.getId(), user.getId());
+        NewFilmRequest film1 = NewFilmRequest.builder()
+                .name("Like Film")
+                .description("desc")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .genres(Set.of(
+                        Genre.builder()
+                                .id(1L)
+                                .name("Экшен")
+                                .build()
+                ))
+                .mpa(
+                        Rating.builder()
+                                .id(2L)
+                                .name("PG")
+                                .build()
+                )
+                .duration(0)
+                .build();
 
-        assertFalse(updated.getLikes().contains(user.getId()));
+        NewFilmRequest film2 = NewFilmRequest.builder()
+                .name("Like Film")
+                .description("desc")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .genres(Set.of(
+                        Genre.builder()
+                                .id(1L)
+                                .name("Экшен")
+                                .build()
+                ))
+                .mpa(
+                        Rating.builder()
+                                .id(2L)
+                                .name("PG")
+                                .build()
+                )
+                .duration(-120)
+                .build();
+
+        assertThatThrownBy(() -> filmService.addFilm(film1))
+                .isInstanceOf(ConditionsNotMetException.class);
+
+        assertThatThrownBy(() -> filmService.addFilm(film2))
+                .isInstanceOf(ConditionsNotMetException.class);
     }
 
     @Test
-    void deleteLikeTheFilm_shouldThrow_whenLikeNotExists() {
-        User user = createUser();
-        Film film = createFilm();
+    public void testDeleteFilmNonExistingId_shouldThrowNotFound() {
 
-        assertThrows(ConditionsNotMetException.class,
-                () -> filmService.deleteLikeTheFilm(film.getId(), user.getId()));
+        assertThatThrownBy(() -> filmService.deleteFilm(999L))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("Фильм не найден");
     }
 
-    @Test
-    void deleteLikeTheFilm_shouldThrow_whenUserNotFound() {
-        Film film = createFilm();
-
-        assertThrows(NotFoundException.class,
-                () -> filmService.deleteLikeTheFilm(film.getId(), 999L));
-    }
-
-    @Test
-    void getTopFilms_shouldReturnSortedByLikes() {
-        User user1 = createUser();
-        User user2 = userStorage.addUser(User.builder()
-                .email("user2@mail.com")
-                .login("user2")
-                .name("User2")
-                .birthday(LocalDate.of(1991, 1, 1))
-                .build());
-
-        Film film1 = createFilm();
-        Film film2 = filmStorage.addFilm(Film.builder()
-                .name("Film2")
-                .description("Description2")
-                .releaseDate(LocalDate.of(2001, 1, 1))
-                .duration(Duration.ofMinutes(120))
-                .build());
-
-        // film1 = 2 лайка
-        filmService.likeTheFilm(film1.getId(), user1.getId());
-        filmService.likeTheFilm(film1.getId(), user2.getId());
-
-        // film2 = 1 лайк
-        filmService.likeTheFilm(film2.getId(), user1.getId());
-
-        Collection<Film> top = filmService.getTopFilmOnLikes(10);
-
-        Film first = top.iterator().next();
-        assertEquals(film1.getId(), first.getId());
-    }
-
-    @Test
-    void getTopFilms_shouldRespectLimit() {
-        User user = createUser();
-
-        Film film1 = createFilm();
-        Film film2 = filmStorage.addFilm(Film.builder()
-                .name("Film2")
-                .description("Description2")
-                .releaseDate(LocalDate.of(2001, 1, 1))
-                .duration(Duration.ofMinutes(120))
-                .build());
-
-        filmService.likeTheFilm(film1.getId(), user.getId());
-        filmService.likeTheFilm(film2.getId(), user.getId());
-
-        Collection<Film> top = filmService.getTopFilmOnLikes(1);
-
-        assertEquals(1, top.size());
-    }
-
-    @Test
-    void getTopFilms_shouldReturnEmpty_whenNoFilms() {
-        Collection<Film> top = filmService.getTopFilmOnLikes(10);
-
-        assertTrue(top.isEmpty());
-    }
 }

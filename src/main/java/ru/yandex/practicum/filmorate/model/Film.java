@@ -17,6 +17,9 @@ public class Film {
     private String name;
     private String description;
     private LocalDate releaseDate;
+    @Builder.Default
+    private Set<Genre> genres = new HashSet<>();
+    private Rating mpa;
 
     /*
      * Добавил сериализацию, чтобы отображение duration было в нормальном виде,
@@ -27,5 +30,6 @@ public class Film {
     @JsonSerialize(using = DurationMinutesSerializer.class)
     private Duration duration;
 
+    @Builder.Default
     private Set<Long> likes = new HashSet<>();
 }

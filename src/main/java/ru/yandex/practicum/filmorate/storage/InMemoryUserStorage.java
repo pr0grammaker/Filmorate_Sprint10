@@ -1,3 +1,4 @@
+/*
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +9,6 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 @Slf4j
@@ -58,11 +58,6 @@ public class InMemoryUserStorage implements UserStorage {
                 .birthday(newUser.getBirthday())
                 .build();
 
-        // на всякий если вдруг null будет
-        if (oldUser.getFriends() == null) {
-            oldUser.setFriends(new HashSet<>());
-        }
-
         saveUser(oldUser);
         log.info("Пользователь успешно обновлён: {}", oldUser);
         return oldUser;
@@ -89,11 +84,9 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     private void saveUser(User user) {
-        if (user.getFriends() == null) {
-            user.setFriends(new HashSet<>());
-        }
         users.put(user.getId(), user);
     }
 
 
 }
+*/
