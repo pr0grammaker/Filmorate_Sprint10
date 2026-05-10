@@ -1,15 +1,16 @@
 package ru.yandex.practicum.filmorate.dal;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
+
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class GenreDbStorage extends BaseRepository<Genre> {
+public class GenreDbStorage extends BaseRepository<Genre> implements GenreStorage {
 
     private final static String GET_ALL_GENRES_QUERY = """
             SELECT *
@@ -30,7 +31,7 @@ public class GenreDbStorage extends BaseRepository<Genre> {
             """;
 
     public GenreDbStorage(JdbcTemplate jdbc,
-                          @Qualifier("genreRowMapper") RowMapper<Genre> mapper) {
+                          RowMapper<Genre> mapper) {
         super(jdbc, mapper);
     }
 
@@ -46,6 +47,6 @@ public class GenreDbStorage extends BaseRepository<Genre> {
 
         Integer count = jdbc.queryForObject(GENRE_EXIST_QUERY, Integer.class, genreId);
 
-        return count > 0;
+        return count > 0 && count != null;
     }
 }

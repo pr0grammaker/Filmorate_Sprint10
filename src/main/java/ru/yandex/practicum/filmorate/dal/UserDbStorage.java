@@ -4,12 +4,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
+
 import java.util.List;
 import java.util.Optional;
 
 
 @Repository
-public class UserDbStorage extends BaseRepository<User> {
+public class UserDbStorage extends BaseRepository<User> implements UserStorage {
     private final static String GET_ALL_QUERY = """
             SELECT *
             FROM users""";
@@ -75,7 +77,7 @@ public class UserDbStorage extends BaseRepository<User> {
             FROM friendships
             WHERE user_id = ? AND friend_id = ?
             """;
-// @Qualifier("userRowMapper")
+
     public UserDbStorage(JdbcTemplate jdbc,
                          RowMapper<User> mapper) {
         super(jdbc, mapper);

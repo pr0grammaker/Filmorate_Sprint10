@@ -1,11 +1,14 @@
 package ru.yandex.practicum.filmorate.dal;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
+import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
+
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
@@ -44,14 +47,14 @@ public class BaseRepository<T> {
     }
 
     protected void update(String query, Object... params) {
-//        try {
-        int rowsUpdated = jdbc.update(query, params);
-        if (rowsUpdated == 0) {
-            throw new InternalServerException("алось обновить данные");
-        }
-//        } catch (DataIntegrityViolationException e){
-//            throw new ConditionsNotMetException("Пользователи уже друзья");
-//        }
+        try {
+            int rowsUpdated = jdbc.update(query, params);
+            if (rowsUpdated == 0) {
+                throw new InternalServerException("Не удалось обновить данные");
+            }
+        } catch (DataIntegrityViolationException e) {
+            throw new ConditionsNotMetException("Пользователи уже друзья");
+        } // оставил т.к. падает тест в UserServiceTest в методе addFriend_shouldThrow_whenAlreadyFriend
 
     }
 

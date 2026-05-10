@@ -28,6 +28,5 @@ public class UpdateUserRequest {
     public boolean hasBirthday() {
         return !(birthday == null);
     }
-    // посмотреть насчет строгого формата даты по типу 13.06.2000 либо забить главное чтобы тесты postman проходили
 
 }

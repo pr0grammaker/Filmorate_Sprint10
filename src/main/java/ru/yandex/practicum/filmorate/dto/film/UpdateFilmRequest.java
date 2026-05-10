@@ -15,8 +15,6 @@ public class UpdateFilmRequest {
     private LocalDate releaseDate;
     private Set<Genre> genres;
     private Rating mpa;
-
-//    @JsonSerialize(using = DurationMinutesSerializer.class)
     private long duration;
 
 

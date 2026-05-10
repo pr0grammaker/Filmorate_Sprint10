@@ -69,16 +69,6 @@ public class UserService {
             throw new ConditionsNotMetException("Нельзя добавить себя в друзья");
         }
 
-//        Optional<String> reverse = userDbStorage.getFriendshipStatus(friendId, userId);
-//
-//        if (reverse.isPresent() && reverse.get().equals("PENDING")) {
-//            userDbStorage.updateFriendStatus(friendId, userId, "CONFIRMED");
-//            userDbStorage.addFriend(userId, friendId, "CONFIRMED");
-//
-//        } else {
-//            userDbStorage.addFriend(userId, friendId, "PENDING");
-//        }
-        // Пришлось убрать т.к. в ТЗ написано про односторонюю дружбу оставил на всякий
         userDbStorage.addFriend(userId, friendId, "CONFIRMED");
 
         return UserMapper.mapToUserDto(user);
@@ -91,10 +81,6 @@ public class UserService {
         userDbStorage.findById(friendId)
                 .orElseThrow(() -> new NotFoundException("Друг не найден"));
 
-//        if (userDbStorage.getFriendshipStatus(userId, friendId).isEmpty()) {
-//            throw new NotFoundException("Дружба не найдена");
-//        }
-        // это условие мешало тестам поэтому тоже убрал и оставил на всякий
         if (userId == friendId) {
             throw new ConditionsNotMetException("Нельзя удалить самого себя");
         }

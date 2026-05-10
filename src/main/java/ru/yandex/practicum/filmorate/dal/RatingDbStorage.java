@@ -1,15 +1,16 @@
 package ru.yandex.practicum.filmorate.dal;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.storage.RatingStorage;
+
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class RatingDbStorage extends BaseRepository<Rating> {
+public class RatingDbStorage extends BaseRepository<Rating> implements RatingStorage {
 
     private final static String GET_ALL_RATINGS_QUERY = """
             SELECT *
@@ -29,7 +30,7 @@ public class RatingDbStorage extends BaseRepository<Rating> {
 
 
     public RatingDbStorage(JdbcTemplate jdbc,
-                           @Qualifier("ratingRowMapper") RowMapper<Rating> mapper) {
+                           RowMapper<Rating> mapper) {
         super(jdbc, mapper);
     }
 
@@ -43,6 +44,6 @@ public class RatingDbStorage extends BaseRepository<Rating> {
 
     public boolean mpaExist(long mpaId) {
         Integer count = jdbc.queryForObject(RATING_EXIST_QUERY, Integer.class, mpaId);
-        return count > 0;
+        return count > 0 && count != null;
     }
 }

@@ -26,6 +26,8 @@ public class MapperConfig { // Spring не видит поэтому сдела�
                 .build();
     }
 
+
+
     @Bean
     public RowMapper<Film> filmRowMapper() {
         return (ResultSet rs, int rowNum) -> Film.builder()

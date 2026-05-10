@@ -1,17 +1,18 @@
-//package ru.yandex.practicum.filmorate.storage;
-//
-//import ru.yandex.practicum.filmorate.model.Film;
-//
-//import java.util.Collection;
-//
-//public interface FilmStorage {
-//    Film addFilm(Film film);
-//
-//    Film updateFilm(Film film);
-//
-//    Collection<Film> getAllFilms();
-//
-//    Film getFilmById(Long id);
-//
-//    Collection<Film> getTopFilmOnLikes(Integer count);
-//}
+package ru.yandex.practicum.filmorate.storage;
+
+import ru.yandex.practicum.filmorate.model.Film;
+
+import java.util.Collection;
+import java.util.Optional;
+
+public interface FilmStorage {
+    Film createFilm(Film film);
+
+    Film update(Film film);
+
+    Collection<Film> getFilms();
+
+    Optional<Film> findFilmById(long filmId);
+
+    Collection<Film> getTopFilmOnLikes(int count);
+}

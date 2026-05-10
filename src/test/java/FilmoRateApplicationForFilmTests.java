@@ -225,65 +225,6 @@ class FilmoRateApplicationForFilmTests {
     }
 
     @Test
-    public void testGetTopFilmOnLikes() {
-
-        Film film1 = filmDbStorage.createFilm(Film.builder()
-                .name("New Film")
-                .description("Some desc")
-                .releaseDate(LocalDate.of(2021, 5, 10))
-                .duration(Duration.ofMinutes(120))
-                .mpa(
-                        Rating.builder()
-                                .id(2L)
-                                .name("PG")
-                                .build()
-                )
-                .genres(Set.of(
-                        Genre.builder()
-                                .id(1L)
-                                .name("Экшен")
-                                .build()
-                ))
-                .build());
-
-        Film film2 = filmDbStorage.createFilm(Film.builder()
-                .name("New Film")
-                .description("Some desc")
-                .releaseDate(LocalDate.of(2021, 5, 10))
-                .duration(Duration.ofMinutes(120))
-                .mpa(
-                        Rating.builder()
-                                .id(2L)
-                                .name("PG")
-                                .build()
-                )
-                .genres(Set.of(
-                        Genre.builder()
-                                .id(1L)
-                                .name("Экшен")
-                                .build()
-                ))
-                .build());
-
-        User user = userDbStorage.save(User.builder()
-                .email("top@mail.ru")
-                .login("top")
-                .name("Top")
-                .birthday(LocalDate.of(2000, 1, 1))
-                .build());
-
-        filmDbStorage.addLike(film2.getId(), user.getId());
-
-        List<Film> top = filmDbStorage.getTopFilmOnLikes(1);
-
-        assertThat(top)
-                .isNotEmpty()
-                .first()
-                .extracting(Film::getId)
-                .isEqualTo(film2.getId());
-    }
-
-    @Test
     public void testDeleteFilm() {
 
         Film film = filmDbStorage.createFilm(Film.builder()

@@ -1,9 +1,9 @@
-DELETE FROM film_likes;
-DELETE FROM friendships;
-DELETE FROM films;
-DELETE FROM users;
-DELETE FROM genres;
-DELETE FROM ratings;
+--DELETE FROM film_likes;
+--DELETE FROM friendships;
+--DELETE FROM films;
+--DELETE FROM users;
+--DELETE FROM genres;
+--DELETE FROM ratings;
 
 ALTER TABLE films ALTER COLUMN id RESTART WITH 1;
 ALTER TABLE users ALTER COLUMN id RESTART WITH 1;

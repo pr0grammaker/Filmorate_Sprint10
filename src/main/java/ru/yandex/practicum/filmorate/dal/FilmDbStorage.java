@@ -1,17 +1,18 @@
 package ru.yandex.practicum.filmorate.dal;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+
 import java.util.List;
 import java.util.Optional;
 
 
 @Repository
-public class FilmDbStorage extends BaseRepository<Film> {
+public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 
     private static final String GET_ALL_FILMS_QUERY = """
             SELECT *
@@ -65,14 +66,8 @@ public class FilmDbStorage extends BaseRepository<Film> {
             WHERE id = ?
             """;
 
-    private static final String RATING_EXIST_QUERY = """
-            SELECT COUNT(*)
-            FROM ratings
-            WHERE id = ?
-            """;
-
     public FilmDbStorage(JdbcTemplate jdbc,
-                         @Qualifier("filmRowMapper") RowMapper<Film> mapper) {
+                         RowMapper<Film> mapper) {
         super(jdbc, mapper);
     }
 
@@ -129,9 +124,9 @@ public class FilmDbStorage extends BaseRepository<Film> {
     }
 
     public boolean isLikeExists(long filmId, long userId) {
-        int count = jdbc.queryForObject(LIKE_EXIST_QUERY, Integer.class, filmId, userId);
+        Integer count = jdbc.queryForObject(LIKE_EXIST_QUERY, Integer.class, filmId, userId);
 
-        return count > 0;
+        return count != null && count > 0;
     }
 
     public void removeLike(long filmId, long userId) {

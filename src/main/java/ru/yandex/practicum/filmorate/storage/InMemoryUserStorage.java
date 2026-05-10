@@ -1,4 +1,3 @@
-/*
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
@@ -7,9 +6,7 @@ import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -18,13 +15,13 @@ public class InMemoryUserStorage implements UserStorage {
 
 
     @Override
-    public Collection<User> getAllUsers() {
+    public Collection<User> findAllUsers() {
         log.info("Запрошен список всех пользователей, текущий размер: {}", users.size());
         return users.values();
     }
 
     @Override
-    public User addUser(User user) {
+    public User save(User user) {
         log.info("Попытка добавить нового пользователя: {}", user);
 
         Long id = getNextID();
@@ -38,7 +35,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User updateUser(User newUser) {
+    public User update(User newUser) {
         log.info("Попытка обновить пользователя: {}", newUser);
 
         if (newUser.getId() == null) {
@@ -58,6 +55,11 @@ public class InMemoryUserStorage implements UserStorage {
                 .birthday(newUser.getBirthday())
                 .build();
 
+        // на всякий если вдруг null будет
+        if (oldUser.getFriends() == null) {
+            oldUser.setFriends(new HashMap<>());
+        }
+
         saveUser(oldUser);
         log.info("Пользователь успешно обновлён: {}", oldUser);
         return oldUser;
@@ -72,21 +74,18 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUserById(Long id) {
-        if (id == null) {
-            throw new ConditionsNotMetException("Id должен быть указан");
-        }
-
+    public Optional<User> findById(long id) {
         return users.values().stream()
-                .filter(user -> user.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
+                .filter(user -> user.getId() == id)
+                .findFirst();
     }
 
     private void saveUser(User user) {
+        if (user.getFriends() == null) {
+            user.setFriends(new HashMap<>());
+        }
         users.put(user.getId(), user);
     }
 
 
 }
-*/
